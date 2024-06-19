@@ -14,29 +14,24 @@ struct Base {
     rpc_url: String,
 }
 
-#[derive(Deserialize)]
-struct MarketMetaData {
-    market_name: String,
-    symbol: String,
-}
-
 struct FundingRate {
     current_funding_rate: f64,
 }
 
 impl FundingRate {
-    fn new(value: I256) -> Self {
-        Self { 
-            current_funding_rate: value.to_string().parse::<f64>().unwrap(),
-        }
+    fn new(value: I256) -> Result<Self, Box<dyn Error>> {
+        Ok(Self {
+            current_funding_rate: value.to_string().parse::<f64>()?,
+        })
     }
 
-    fn convert_wei_to_eth(&mut self) {
-        let decimals = 18;
-        let conversion_factor = 10u64.pow(decimals).to_string().parse::<f64>().unwrap();
+    fn convert_wei_to_eth(&mut self) -> Result<(), Box<dyn Error>> {
+        const DECIMALS: u32 = 18;
+        let conversion_factor = 10u64.pow(DECIMALS).to_string().parse::<f64>()?;
         self.current_funding_rate /= conversion_factor;
+        Ok(())
     }
-    
+
     fn convert_to_hourly_percent(&mut self) {
         self.current_funding_rate *= 100.0 / 24.0;
     }
@@ -47,7 +42,7 @@ pub struct Synthetix<'a> {
 }
 
 impl<'a> Synthetix<'a> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             symbols: [
                 (200, "BTC"),
@@ -92,22 +87,21 @@ impl<'a> Synthetix<'a> {
             rpc_url: "https://mainnet.base.org".to_string(),
         };
         let provider = Provider::<Http>::try_from(base.rpc_url)?;
-        let perps_market_proxy_address: Address = "0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce".parse()?;
+        let perps_market_proxy_address: Address =
+            "0x0A2AF931eFFd34b81ebcc57E3d3c9B1E1dE1C9Ce".parse()?;
         let contract = PerpsMarketProxy::new(perps_market_proxy_address, provider.clone().into());
 
-        // Return the Perps Market Proxy contract
         Ok(contract)
     }
 
     pub async fn get_funding_rates(&self) -> Result<HashMap<String, f64>, Box<dyn Error>> {
         let contract = self.setup()?;
-
         let mut funding_rates: HashMap<String, f64> = HashMap::new();
 
-        for symbol in self.symbols {
+        for symbol in &self.symbols {
             let market = contract.get_market_summary(symbol.0).call().await?;
-            let mut fr = FundingRate::new(market.current_funding_rate);
-            fr.convert_wei_to_eth();
+            let mut fr = FundingRate::new(market.current_funding_rate)?;
+            fr.convert_wei_to_eth()?;
             fr.convert_to_hourly_percent();
             funding_rates.insert(symbol.1.to_string(), fr.current_funding_rate);
         }

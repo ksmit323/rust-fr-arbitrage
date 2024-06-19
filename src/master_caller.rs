@@ -3,7 +3,6 @@ use crate::synthetix::*;
 
 use std::collections::HashMap;
 use std::error::Error;
-use tokio::task;
 
 pub struct MasterCaller;
 
@@ -12,7 +11,9 @@ impl MasterCaller {
         MasterCaller
     }
 
-    pub async fn get_funding_rates(&self) -> Result<HashMap<String, HashMap<String, f64>>, Box<dyn Error>> {
+    pub async fn get_funding_rates(
+        &self,
+    ) -> Result<HashMap<String, HashMap<String, f64>>, Box<dyn Error>> {
         /*
         Returns:
             HashMap: A mapping where keys are symbols and values are mappings of DEX names and rates.
@@ -53,5 +54,4 @@ impl MasterCaller {
 
         Ok(funding_rates)
     }
-    
 }

@@ -9,3 +9,5 @@ tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 ethers = { version = "1.0", features = ["rustls", "abigen"] }
+polars = { version = "0.20.0", features = ["lazy"] }
+tabled = "0.4.0"

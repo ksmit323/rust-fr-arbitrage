@@ -11,6 +11,7 @@ use std::error::Error;
 abigen!(PerpsMarketProxy, "src/abi/PerpsMarketProxy.json",);
 
 #[derive(Deserialize)]
+#[allow(unused)]
 struct Base {
     chain_id: u64,
     rpc_url: String,

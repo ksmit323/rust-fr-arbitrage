@@ -44,7 +44,6 @@ pub struct Synthetix<'a> {
     symbols: [(u128, &'a str); 32],
 }
 
-#[allow(unused)]
 impl<'a> Synthetix<'a> {
     pub fn new() -> Self {
         Self {
@@ -102,14 +101,8 @@ impl<'a> Synthetix<'a> {
         let contract = self.setup()?;
         let mut funding_rates: HashMap<String, f64> = HashMap::new();
 
-        let mut count = 0;
-
         for symbol in &self.symbols {
             let current_funding_rate = contract.current_funding_rate(symbol.0).call().await?;
-
-            count += 1;
-            println!("{}", count);
-
             let mut fr = FundingRate::new(current_funding_rate)?;
             fr.convert_wei_to_eth()?;
             fr.convert_to_hourly_percent();
@@ -119,6 +112,7 @@ impl<'a> Synthetix<'a> {
         Ok(funding_rates)
     }
 
+    #[allow(unused)]
     pub async fn get_current_funding_rate(&self, market_id: u128) -> Result<(), Box<dyn Error>> {
         let contract = self.setup()?;
         let market = contract.current_funding_rate(market_id).call().await?;
@@ -127,6 +121,7 @@ impl<'a> Synthetix<'a> {
         Ok(())
     }
     
+    #[allow(unused)]
     pub async fn get_market_summary(&self, market_id: u128) -> Result<(), Box<dyn Error>> {
         let contract = self.setup()?;
         let market = contract.get_market_summary(market_id).call().await?;
@@ -135,6 +130,7 @@ impl<'a> Synthetix<'a> {
         Ok(())
     }
 
+    #[allow(unused)]
     pub async fn get_markets(&self) -> Result<(), Box<dyn Error>> {
         let contract = self.setup()?;
         let markets = contract.get_markets().await?;

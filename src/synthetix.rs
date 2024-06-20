@@ -117,10 +117,10 @@ impl<'a> Synthetix<'a> {
         let contract = self.setup()?;
         let market = contract.current_funding_rate(market_id).call().await?;
         println!("{:?}", market);
-        
+
         Ok(())
     }
-    
+
     #[allow(unused)]
     pub async fn get_market_summary(&self, market_id: u128) -> Result<(), Box<dyn Error>> {
         let contract = self.setup()?;
@@ -139,6 +139,5 @@ impl<'a> Synthetix<'a> {
         Ok(())
     }
 }
-
 
 // TODO: factor out the setup function
